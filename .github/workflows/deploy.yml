@@ -3,7 +3,7 @@ name: Deploy Lambda Function
 on:
   push:
     branches:
-      - main  # Or use your default branch
+      - main  # or use your default branch
 
 jobs:
   deploy:
@@ -16,20 +16,25 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'  # Choose the version of Python you used for Lambda
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Deploy Lambda Function
-      uses: aws-actions/aws-lambda-deploy@v1
+    - name: Zip Lambda function code
+      run: zip -r lambda_function.zip .
+
+    - name: Set up AWS CLI
+      uses: aws-actions/configure-aws-credentials@v1
       with:
-        function-name: FetchDataFromDynamoDB  # Replace with your Lambda function name
-        zip-file: 'lambda_function.zip'
-        region: 'us-east-1'  # Choose your AWS region
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  # Optional if using temporary credentials
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: 'us-east-1'  # Replace with your AWS region
+
+    - name: Deploy Lambda function
+      run: |
+        aws lambda update-function-code \
+          --function-name FetchDataFromDynamoDB \  # Replace with your Lambda function name
+          --zip-file fileb://lambda_function.zip
