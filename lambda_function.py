@@ -8,6 +8,6 @@ def lambda_handler(event, context):
     InstanceType='t2.micro',
     MaxCount=1,
     MinCount=1)
-    #print(response)
+    
     
     print(response[Instances][0][InstanceId])
