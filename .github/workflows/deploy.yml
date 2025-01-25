@@ -1,0 +1,35 @@
+name: Deploy Lambda Function
+
+on:
+  push:
+    branches:
+      - main  # Or use your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'  # Choose the version of Python you used for Lambda
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Deploy Lambda Function
+      uses: aws-actions/aws-lambda-deploy@v1
+      with:
+        function-name: FetchDataFromDynamoDB  # Replace with your Lambda function name
+        zip-file: 'lambda_function.zip'
+        region: 'us-east-1'  # Choose your AWS region
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}  # Optional if using temporary credentials
